@@ -103,7 +103,7 @@ int main() {
     Matrix inp;
     Matrix res;
 
-    setlocale(LC_ALL, ".1251");
+    // setlocale(LC_ALL, ".1251");
     input(&inp);
 
     res.m = 0;
