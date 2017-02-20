@@ -93,7 +93,7 @@ void formNewMatrix(Matrix *old, Matrix *res) {
 void erase(Matrix *m) {
     int i;
     for(i=0; i<m->m; i++) {
-        free(m->pt[i]->ar);
+        free(m->pt[i].ar);
     }
     free(m->pt);
     m->pt = NULL;
@@ -117,8 +117,8 @@ int main() {
     printf("Полученная матрица\n");
     print(res);
 
-    erase(res);
-    erase(inp);
+    erase(&res);
+    erase(&inp);
 
     getchar();
     getchar();
