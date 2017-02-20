@@ -25,7 +25,7 @@ int readGoodInt() {
 int input(Matrix *rm) {
     int a;
     int m,i,n,j;
-    printf("Р’РІРµРґРёС‚Рµ РєРѕР»-РІРѕ СЃС‚СЂРѕРє, РґР»СЏ РєР°Р¶РґРѕР№ СЃС‚СЂРѕРєРё РєРѕР»-РІРѕ СЌР»Р».\n");
+    printf("Введите кол-во строк, для каждой строки кол-во элл.\n");
     //printf("%d", s);
 
     m = readGoodInt();
@@ -34,12 +34,12 @@ int input(Matrix *rm) {
     rm->pt = (Line *)calloc(m,sizeof(Line));
 
     for (i=0; i<m; i++) {
-        printf("Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»Р». СЃС‚СЂРѕРєРё %d\n", i+1); 
+        printf("Введите количество элл. строки %d\n", i+1); 
         n = readGoodInt();
         rm->pt[i].n = n;
         rm->pt[i].ar = (int *)calloc(n, sizeof(int));
         for (j=0; j<n; j++) {
-            printf("Р’РІРµРґРёС‚Рµ [%d][%d]\n", i, j); 
+            printf("Введите [%d][%d]\n", i, j); 
             a = readGoodInt();
             rm->pt[i].ar[j] = a;
         }
@@ -111,10 +111,10 @@ int main() {
 
     formNewMatrix(&inp, &res);
 
-    printf("Р‘С‹Р»Рѕ РІРІРµРґРµРЅРѕ\n");
+    printf("Было введено\n");
     print(inp);
 
-    printf("РџРѕР»СѓС‡РµРЅРЅР°СЏ РјР°С‚СЂРёС†Р°\n");
+    printf("Полученная матрица\n");
     print(res);
 
     erase(&res);
