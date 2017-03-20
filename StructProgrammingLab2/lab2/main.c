@@ -23,6 +23,7 @@ char* input_string() {
 
     char s[300];
     int si = 0;
+    printf("Введите строки, до признака конца файла(CTRL+D):\n");
     scanf("%[^EOF]s", &s);
 
     while(s[si++] != NULL) { }
@@ -130,16 +131,18 @@ void remove_delim(Node** head) {
 
         if (tmp->ch == '.') {
             add_symb(tmp, '\n');
+            first = true;
         }
 
         if (check_bad(tmp) && (check_bad(tmp->next) || first)) {
             remove_symbol(tmp); // tmp = tmp->next;
 
-        } else {
-
-            if (tmp->ch == '.') {
-                first = true;
+            if (!check_bad(tmp->next)) {
+//            if (tmp->ch == '.') {
+                first = false;
             }
+
+        } else {
 
             tmp = tmp->next;
         }
@@ -150,6 +153,7 @@ void remove_delim(Node** head) {
 void add_format(Node** head) {
     Node* tmp = (*head);
     while(tmp != NULL) {
+
         if (tmp->ch == ' ') {
             add_symb(tmp, ' ');
             add_symb(tmp, ',');
