@@ -138,7 +138,6 @@ void remove_delim(Node** head) {
             remove_symbol(tmp); // tmp = tmp->next;
 
             if (!check_bad(tmp->next)) {
-//            if (tmp->ch == '.') {
                 first = false;
             }
 
@@ -156,9 +155,7 @@ void add_format(Node** head) {
 
         if (tmp->ch == ' ') {
             add_symb(tmp, ' ');
-            add_symb(tmp, ',');
             remove_symbol(tmp);
-            tmp = tmp->next;
             tmp = tmp->next;
         } else {
             tmp = tmp->next;

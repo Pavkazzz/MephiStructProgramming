@@ -3,4 +3,8 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main_tolkach.c
+SOURCES += lab3.cpp \
+    main.cpp
+
+HEADERS += \
+    lab3.h

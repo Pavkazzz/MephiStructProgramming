@@ -110,11 +110,15 @@ void remove_delim(Node** head) {
     int space = 0;
     int ch = 0;
     Node* new_list = NULL;
+
     Node* tmp = (*head);
     while(tmp != NULL) {
 
         if (tmp->next != NULL) {
-            if (tmp->next->ch != ' ' && tmp->next->ch != '\n' && tmp->ch != ' ') {
+            if (tmp->next->ch == '\n' || tmp->next->ch == '\t') {
+                tmp->next->ch = ' ';
+            }
+            if (tmp->next->ch != ' ' && tmp->ch != ' ' || (tmp->ch == ' ' && tmp->next->ch == ' ')) {
                 remove_symbol(tmp);
             } else {
                 tmp = tmp->next;
