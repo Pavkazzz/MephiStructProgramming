@@ -15,6 +15,22 @@ void initTable() {
     }
 }
 
+
+void freeTable()
+{
+    for (int i=0; i<MAX_SIZE; i++) {
+        if (node[i]->info != NULL) {
+            Item *item = node[i]->info;
+            while(item != NULL) {
+                Item *next_item = item->next;
+                delete item;
+                item = next_item;
+            }
+        }
+        delete node[i];
+    }
+}
+
 int readGoodInt()
 {
     int i;
@@ -94,18 +110,11 @@ void removeItem() {
 
 }
 
-void findItem() {
+void findItem(int key, int rel) {
 
-    cout << "Введите ключ <int>:" << endl;
-    int i = readGoodInt();
+    Node *node = findNode(key);
 
-    cout << "Введите версию: <int> или все значения<int:-1>" << endl;
-    int rel = readGoodInt();
-
-
-    Node *node = findNode(i);
-
-    if (node->key != i) {
+    if (node->key != key) {
         cout << "Такого ключа нет в таблице" << endl;
         return ;
     }
@@ -150,3 +159,4 @@ int printMenu() {
     int i = readGoodInt();
     return i;
 }
+

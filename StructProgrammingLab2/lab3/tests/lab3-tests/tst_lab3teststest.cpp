@@ -9,6 +9,8 @@ class Lab3testsTest : public QObject
 private Q_SLOTS:
     void initTestCase();
     void addDataTestCase();
+    void findItemTestCase();
+//    void removeDataTestCase();
     void cleanupTestCase();
 };
 
@@ -18,6 +20,7 @@ void Lab3testsTest::initTestCase()
     QCOMPARE(current_size, 0);
     QCOMPARE(MAX_SIZE, 10);
 }
+
 
 void Lab3testsTest::addDataTestCase()
 {
@@ -43,6 +46,17 @@ void Lab3testsTest::addDataTestCase()
 
     QCOMPARE(node[1]->info->string, str4);
 }
+
+void Lab3testsTest::findItemTestCase()
+{
+    findItem(1, -1);
+}
+
+//void Lab3testsTest::removeDataTestCase()
+//{
+//    removeItem();
+//}
+
 
 void Lab3testsTest::cleanupTestCase()
 {

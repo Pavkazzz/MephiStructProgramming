@@ -1,4 +1,4 @@
-#include <lab3.cpp>
+#include "lab3.cpp"
 
 int main(/*int argc, char *argv[]*/)
 {
@@ -10,6 +10,7 @@ int main(/*int argc, char *argv[]*/)
 
         int key = -1;
         char str[80] = {0};
+        int rel = 0;
 
         switch (res) {
         case 1:
@@ -29,7 +30,13 @@ int main(/*int argc, char *argv[]*/)
             removeItem();
             break;
         case 4:
-            findItem();
+            cout << "Введите ключ <int>:" << endl;
+            key = readGoodInt();
+
+            cout << "Введите версию: <int> или все значения<int:-1>" << endl;
+            rel = readGoodInt();
+
+            findItem(key, rel);
             break;
         default:
             cout << "Нет такого пункта меню" << endl;
