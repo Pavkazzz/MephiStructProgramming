@@ -1,6 +1,6 @@
-#TEMPLATE = lib
 TEMPLATE = app
 CONFIG += console
+CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += lab3.cpp \
@@ -10,4 +10,4 @@ HEADERS += \
     lab3.h
 
 TARGET = ordered_table
-DESTDIR = /usr/local/lib/learning
+#DESTDIR = lib

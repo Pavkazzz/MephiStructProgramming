@@ -7,38 +7,40 @@ int readGoodInt()
     while (!(cin >> i)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "п÷п╩п╬я┘п╬п╣ я┤п╦я│п╩п╬, п╡п╡п╣п╢п╦я┌п╣ п╣я┴п╣ я─п╟п╥" << endl;
+        cout << "Плохое число, введите еще раз" << endl;
     }
 
     return i;
 }
 
 int printMenu() {
-    cout << "0 - п▓я▀я┘п╬п╢, ";
-    cout << "1 - п▓я▀п╡п╬п╢ я┌п╟п╠п╩п╦я├я▀, ";
-    cout << "2 - п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╡ я┌п╟п╠п╩п╦я├я┐, ";
-    cout << "3 - пёп╢п╟п╩п╣п╫п╦п╣ п╦п╥ я┌п╟п╠п╩п╦я├я▀, ";
-    cout << "4 - п÷п╬п╦я│п╨ п╡ я┌п╟п╠п╩п╦я├п╣ п©п╬ п╨п╩я▌я┤я┐" << endl;
+    cout << "------------" << endl;
+    cout << "0 - Выход ";
+    cout << "1 - Вывод таблицы ";
+    cout << "2 - Добавление в таблицу " << endl;
+    cout << "3 - Удаление из таблицы ";
+    cout << "4 - Поиск в таблице по ключу" << endl;
     int i = readGoodInt();
     return i;
 }
 
 
-void showTable(Node **node, int size, int rel) {
+
+
+void showTable(Node **node, int size) {
     if (size == 0) {
-        cout << "п╒п╟п╠п╩п╦я├п╟ п©я┐я│я┌п╟я▐" << endl;
+        cout << "Таблица пустая" << endl;
     } else {
-        cout << "п╒п╟п╠п╩п╦я├п╟:" << endl;
+        cout << "Таблица:" << endl;
         for (int i=0; i<size; i++) {
             if (node[i]->info != NULL) {
                 Item *current_item = node[i]->info;
-                cout << "    п п╩я▌я┤: " << node[i]->key << endl;
+                cout << "    Ключ: " << node[i]->key << endl;
                 while (current_item != NULL) {
-                    if (rel == -1 || rel == current_item->release) {
 
-                        cout << "        п▓п╣я─я│п╦я▐: " << current_item->release << \
-                                " п≈п╫п╟я┤п╣п╫п╦п╣: " << current_item->string << endl;
-                    }
+                    cout << "        Версия: " << current_item->release << \
+                            " Значение: " << current_item->string << endl;
+
                     current_item = current_item->next;
                 }
             }
@@ -46,52 +48,100 @@ void showTable(Node **node, int size, int rel) {
     }
 }
 
+void showCell(Item *item) {
+    if (item != NULL) {
+        cout << "Найден эллемент" << endl;
+        cout << "    Версия: " << item->release << \
+                " Значение: " << item->string << endl;
+    } else {
+        cout << "Не найден эллемент" << endl;
+    }
+}
+
+/// Отображаем строку
+void showRow(Node *node) {
+    if (node != NULL) {
+        showTable(&node, 1);
+    } else {
+        cout << "Не найден ключ";
+    }
+}
 
 int main(/*int argc, char *argv[]*/)
 {
 
-    initTable();
+    OrderedTable *table = new OrderedTable("my_table.bin");
+
+    table->desirialize();
 
     int res = printMenu();
     while(res != 0) {
 
         int key = -1;
-        char str[80] = {0};
+        char str[STRING_SIZE] = {0};
         int rel = 0;
 
         switch (res) {
         case 1:
-            showTable(node, current_size);
+            /// Вывод таблицы
+            showTable(table->getAllNode(), table->getCurrentSize());
             break;
         case 2:
-
-            cout << "п▓п╡п╣п╢п╦я┌п╣ п╨п╩я▌я┤ <int>:" << endl;
+            /// Добавление в таблицу
+            cout << "Введите ключ <int>:" << endl;
             key = readGoodInt();
 
-            cout << "п▓п╡п╣п╢п╦я┌п╣ п╥п╫п╟я┤п╣п╫п╦п╣ <char[80]>:" << endl;
+            cout << "Введите значение <char[" << STRING_SIZE << "]>:" << endl;
             cin >> str;
 
-            addItem(key, str);
+            table->addItem(key, str);
+            table->serialize();
             break;
         case 3:
-            removeItem();
-            break;
-        case 4:
-            cout << "п▓п╡п╣п╢п╦я┌п╣ п╨п╩я▌я┤ <int>:" << endl;
+            /// Удаление из таблицы
+            cout << "Введите ключ <int>:" << endl;
             key = readGoodInt();
 
-            cout << "п▓п╡п╣п╢п╦я┌п╣ п╡п╣я─я│п╦я▌: <int> п╦п╩п╦ п╡я│п╣ п╥п╫п╟я┤п╣п╫п╦я▐<int:-1>" << endl;
+            cout << "Введите версию: <uint> или все значения<-1>" << endl;
             rel = readGoodInt();
 
-            findItem(key, rel);
+            if (rel == -1) {
+                if (table->removeNode(key)) {
+                    cout << "Строка успешно удалена" << endl;
+                }
+            } else {
+                if (rel >= 0) {
+                    if (table->removeItem(key, rel)) {
+                        cout << "Эллемент успешно удален из таблицы" << endl;
+                    }
+                }
+            }
+            break;
+        case 4:
+            /// Поиск в таблице
+            cout << "Введите ключ <int>:" << endl;
+            key = readGoodInt();
+
+            cout << "Введите версию: <uint> или все значения<-1>" << endl;
+            rel = readGoodInt();
+
+            if (rel == -1) {
+                showRow(table->findBinaryNode(key));
+            } else {
+                if (rel >= 0) {
+                    showCell(table->findBinaryItem(key, rel));
+                }
+            }
             break;
         default:
-            cout << "п²п╣я┌ я┌п╟п╨п╬пЁп╬ п©я┐п╫п╨я┌п╟ п╪п╣п╫я▌" << endl;
+            cout << "Нет такого пункта меню" << endl;
             break;
         }
 
         res = printMenu();
     }
 
+    table->serialize();
+    delete table;
     return 0;
 }

@@ -7,14 +7,38 @@
 
 #include "lab3.h"
 
-/*
+OrderedTable::OrderedTable(const char *filename)
+{
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        node[i] = new Node;
+    }
 
-void addItem(int key, char str[80]) {
+    this->filename = filename;
+}
 
+OrderedTable::~OrderedTable()
+{
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        if (node[i]->info != NULL) {
+            Item *item = node[i]->info;
+            while(item != NULL) {
+                Item *next_item = item->next;
+                delete item;
+                item = next_item;
+            }
+        }
+        delete node[i];
+    }
+}
 
-    Node *foundNode = findNode(key);
+bool OrderedTable::addItem(int key, const char str[STRING_SIZE])
+{
+    Node *foundNode = findPlaceForNewNode(key);
 
-    /// Новый key
+    if (foundNode == NULL) {
+        return false;
+    }
+
     size_t string_length = strlen(str) + 1;
 
     if (foundNode->info == NULL) {
@@ -27,7 +51,7 @@ void addItem(int key, char str[80]) {
         foundNode->key = key;
         current_size++;
     } else {
-        /// Новый item
+        /// Add another item
         Item *item = foundNode->info;
         int last_relase = item->release;
 
@@ -43,71 +67,227 @@ void addItem(int key, char str[80]) {
         item->next->string = (char *)malloc(string_length * sizeof(char));
         memcpy(item->next->string, str, string_length);
     }
+    /// TODO: return status if fail
+    return true;
+}
 
 
+//Item *OrderedTable::findItem(int key, int rel)
+//{
+//    Node *node = findNode(key);
+
+//    /// found node
+//    if (node->key == key && node->info != NULL) {
+//        Item *item = node->info;
+//        while(item != NULL) {
+//            if(item->release == rel) {
+//                return item;
+//            }
+//            item = item->next;
+//        }
+//    }
+//    return NULL;
+//}
+
+//Node *OrderedTable::findNode(int key)
+//{
+
+//    /// search in added
+//    for (int i=0; i<current_size; i++) {
+//        if (node[i]->info != NULL) {
+//            if (node[i]->key == key) {
+//                return node[i];
+//            }
+//        }
+//    }
+
+//    /// find the first empty
+//    for (int i=0; i<MAX_SIZE; i++) {
+//        if (node[i]->info == NULL) {
+//            return node[i];
+//        }
+//    }
+//    /// All field's are filled
+//    /// What to do?
+//    return NULL;
+//}
+
+
+Node *OrderedTable::findPlaceForNewNode(int key)
+{
+    if (current_size == 0 ) {
+        return node[0];
+    }
+
+    if (current_size == MAX_SIZE) {
+        return NULL;
+    }
+    /// ���� ����� � ����� ������
+    Node *node_b = binarySearch(key, current_size);
+    if (node_b != NULL) {
+        return node_b;
+    }
+
+    for (size_t j=current_size; j>closest_after_search; j--) {
+//        node[j] = node[j-1];
+        memcpy(node[j], node[j-1], sizeof(Node));
+    }
+    node[closest_after_search]->info = NULL;
+    node[closest_after_search]->key = -1;
+
+
+    return node[closest_after_search];
 
 }
 
-Node *findNode(int key) {
-    /// TODO: Бинарный поиск
+Item *OrderedTable::findBinaryItem(int key, int rel)
+{
+    Node *node = findBinaryNode(key);
 
-    /// Поиск если есть
-    for (int i=0; i<current_size; i++) {
-        if (node[i]->info != NULL) {
-            if (node[i]->key == key) {
-                return node[i];
+    /// found node
+    if (node != NULL) {
+        Item *item = node->info;
+        while(item != NULL) {
+            if(item->release == rel) {
+                return item;
             }
+            item = item->next;
+        }
+    }
+    return NULL;
+}
+
+Node *OrderedTable::findBinaryNode(int key)
+{
+    return binarySearch(key, current_size);
+}
+
+
+Node *OrderedTable::binarySearch(int key, size_t last_size)
+{
+    size_t first = 0;
+    size_t last = last_size;
+    if (first == last) {
+        closest_after_search = 0;
+        return NULL;
+    }
+
+    if (key < node[first]->key) {
+        closest_after_search = 0;
+        return NULL;
+    }
+
+    if (key > node[last-1]->key) {
+        closest_after_search = last;
+        return NULL;
+    }
+
+
+    while (first < last) {
+        size_t mid = first + (last - first) / 2;
+        if (key <= node[mid]->key) {
+            last = mid;
+        } else {
+            first = mid + 1;
         }
     }
 
-    /// Пустое следующее
-    for (int i=0; i<MAX_SIZE; i++) {
-        if (node[i]->info == NULL) {
-            return node[i];
+    if (node[last] != NULL && node[last]->key == key) {
+        closest_after_search = last;
+        return node[last];
+    }
+
+    closest_after_search = last;
+    return NULL;
+}
+
+bool OrderedTable::removeItem(int key, int rel)
+{
+    Node *node = findBinaryNode(key);
+    if (node != NULL) {
+        Item *item = node->info;
+        Item *prev_item = NULL;
+
+        while (item != NULL) {
+            if (item->release == rel) {
+                if (prev_item != NULL) {
+                    prev_item->next = item->next;
+                } else {
+                    node->info = item->next;
+
+                    /// ������� ��������� ���� � ������
+                    if (item->next == NULL) {
+                        current_size--;
+                        node->key = -1;
+                        delete item;
+                        return true;
+                    }
+
+                    item->next->release = 0;
+                    prev_item = item->next;
+                }
+                delete item;
+
+                /// Renumbering other release
+                item = prev_item->next;
+                while(item != NULL) {
+                    item->release = prev_item->release + 1;
+                    item = item->next;
+                    prev_item = prev_item->next;
+                }
+
+                return true;
+            }
+            prev_item = item;
+            item = item->next;
         }
     }
-    /// Кончились пустые значения
-    /// Что делать?
-    exit(1);
 
-    //    return node[current_size];
-}
-void removeItem() {
-
+    return false;
 }
 
-void findItem(int key, int rel) {
+bool OrderedTable::removeNode(int key)
+{
+    Node *node = findBinaryNode(key);
+    if (node != NULL) {
+        Item *item = node->info;
+        Item *next_item = NULL;
+        while(item != NULL) {
+            next_item = item->next;
+            delete item;
+            item = next_item;
+        }
 
-    Node *node = findNode(key);
+        for (size_t j=current_size-1; j>closest_after_search; j--) {
+            memcpy(this->node[j-1], this->node[j], sizeof(Node));
+        }
 
-    if (node->key != key) {
-        cout << "Такого ключа нет в таблице" << endl;
-        return ;
-    }
+        this->node[current_size-1]->info = NULL;
+        this->node[current_size-1]->key = -1;
 
-    /// Все версии
-    if (rel == -1) {
-        showTable(&node, 1);
+
+        current_size--;
     } else {
-        showTable(&node, 1, rel);
+        /// No item with this key
+        return false;
     }
 
+    return true;
 }
 
-*/
-
-OrderedTable::OrderedTable()
+Node **OrderedTable::getAllNode()
 {
-    for (int i=0; i<MAX_SIZE; i++) {
-        node[i] = new Node;
-        node[i]->key = 0;
-        node[i]->info = NULL;
-    }
+    return node;
 }
 
-OrderedTable::~OrderedTable()
+int OrderedTable::getCurrentSize()
 {
-    for (int i=0; i<MAX_SIZE; i++) {
+    return current_size;
+}
+
+void OrderedTable::clearTable()
+{
+    for (size_t i=0; i<MAX_SIZE; i++) {
         if (node[i]->info != NULL) {
             Item *item = node[i]->info;
             while(item != NULL) {
@@ -118,56 +298,112 @@ OrderedTable::~OrderedTable()
         }
         delete node[i];
     }
+
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        node[i] = new Node;
+        node[i]->key = 0;
+        node[i]->info = NULL;
+    }
+
+    current_size = 0;
+
 }
 
-bool OrderedTable::addNode(int key)
+bool OrderedTable::serialize()
 {
+    FILE *ptr_to_file;
+    ptr_to_file = fopen(filename, "wb");
+    if (!ptr_to_file) {
+        return false;
+    }
 
-    Node *node = findNode(key);
-    if (node->info == NULL) {
-        Item *item = new Item;
-        item->next = NULL;
-        item->release = 0;
-        item->string = (char *)malloc(string_length * sizeof(char));
-        strncpy(item->string, str, string_length);
-        foundNode->info = item;
-        foundNode->key = key;
-        current_size++;
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        fwrite(&node[i]->key, sizeof(node[i]->key), 1, ptr_to_file);
+
+        size_t pr_node;
+        if (node[i]->info == NULL) {
+            pr_node = 0;
+        } else {
+            pr_node = 1;
+        }
+        fwrite(&pr_node, sizeof(pr_node), 1, ptr_to_file);
+
+        Item *item = node[i]->info;
+        while(item != NULL) {
+            size_t len = strlen(item->string) + 1;
+            fwrite(&len, sizeof(size_t), 1, ptr_to_file);
+            fwrite(item->string, len, 1, ptr_to_file);
+            fwrite(&item->release, sizeof(item->release), 1, ptr_to_file);
+            size_t pr_end_item = 0;
+            if (item->next == NULL) {
+                pr_end_item = 1;
+            }
+            fwrite(&pr_end_item, sizeof(size_t), 1, ptr_to_file);
+            item = item->next;
+        }
+
+    }
+    pclose(ptr_to_file);
+    return true;
+}
+
+bool OrderedTable::desirialize()
+{
+    FILE *ptr_to_file;
+    ptr_to_file = fopen(filename, "rb");
+
+    if (!ptr_to_file) {
+        return false;
+    }
+
+    clearTable();
+
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        fread(&node[i]->key, sizeof(node[i]->key), 1, ptr_to_file);
+        node[i]->info = NULL;
+        size_t pr_node;
+        fread(&pr_node, sizeof(pr_node), 1, ptr_to_file);
+        if (pr_node == 1) {
+
+            Item *last_item = NULL;
+            size_t str_len;
+            for (;;) {
+                Item *item = new Item;
+                if (node[i]->info == NULL) {
+                    node[i]->info = item;
+                } else {
+                    last_item->next = item;
+                }
+                fread(&str_len, sizeof(str_len), 1, ptr_to_file);
+                item->string = new char[str_len];
+                fread(item->string, str_len, 1, ptr_to_file);
+                fread(&item->release, sizeof(item->release), 1, ptr_to_file);
+
+
+
+                size_t pr_end_item;
+                fread(&pr_end_item, sizeof(pr_end_item), 1, ptr_to_file);
+                if (pr_end_item > 0) {
+                    break;
+                } else {
+                    last_item = item;
+                }
+            }
+        }
+    }
+    calculateCurrentSize();
+
+    pclose(ptr_to_file);
+    return true;
+}
+
+void OrderedTable::calculateCurrentSize()
+{
+    current_size = 0;
+    for (size_t i=0; i<MAX_SIZE; i++) {
+        if (node[i]->info != NULL) {
+            current_size++;
+        }
     }
 }
 
-bool OrderedTable::addNextItem(int key)
-{
-
-}
-
-Node *OrderedTable::findNode(int key)
-{
-
-}
-
-Item *OrderedTable::findItem(int key, int rel)
-{
-
-}
-
-Node *OrderedTable::findBinaryNode(int key)
-{
-    /// Todo
-    return findNode(key);
-}
-
-Item *OrderedTable::findBinaryItem(int key, int rel)
-{
-
-}
-
-Node *OrderedTable::removeNode(int key)
-{
-
-}
-
-Item *OrderedTable::removeItem(int key, int rel)
-{
-
-}
