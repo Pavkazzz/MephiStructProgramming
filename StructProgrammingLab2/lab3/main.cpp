@@ -1,5 +1,52 @@
 #include "lab3.cpp"
 
+
+int readGoodInt()
+{
+    int i;
+    while (!(cin >> i)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Плохое число, введите еще раз" << endl;
+    }
+
+    return i;
+}
+
+int printMenu() {
+    cout << "0 - Выход, ";
+    cout << "1 - Вывод таблицы, ";
+    cout << "2 - Добавление в таблицу, ";
+    cout << "3 - Удаление из таблицы, ";
+    cout << "4 - Поиск в таблице по ключу" << endl;
+    int i = readGoodInt();
+    return i;
+}
+
+
+void showTable(Node **node, int size, int rel) {
+    if (size == 0) {
+        cout << "Таблица пустая" << endl;
+    } else {
+        cout << "Таблица:" << endl;
+        for (int i=0; i<size; i++) {
+            if (node[i]->info != NULL) {
+                Item *current_item = node[i]->info;
+                cout << "    Ключ: " << node[i]->key << endl;
+                while (current_item != NULL) {
+                    if (rel == -1 || rel == current_item->release) {
+
+                        cout << "        Версия: " << current_item->release << \
+                                " Значение: " << current_item->string << endl;
+                    }
+                    current_item = current_item->next;
+                }
+            }
+        }
+    }
+}
+
+
 int main(/*int argc, char *argv[]*/)
 {
 

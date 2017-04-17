@@ -7,41 +7,7 @@
 
 #include "lab3.h"
 
-void initTable() {
-    for (int i=0; i<MAX_SIZE; i++) {
-        node[i] = new Node;
-        node[i]->key = 0;
-        node[i]->info = NULL;
-    }
-}
-
-
-void freeTable()
-{
-    for (int i=0; i<MAX_SIZE; i++) {
-        if (node[i]->info != NULL) {
-            Item *item = node[i]->info;
-            while(item != NULL) {
-                Item *next_item = item->next;
-                delete item;
-                item = next_item;
-            }
-        }
-        delete node[i];
-    }
-}
-
-int readGoodInt()
-{
-    int i;
-    while (!(cin >> i)) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Плохое число, введите еще раз" << endl;
-    }
-
-    return i;
-}
+/*
 
 void addItem(int key, char str[80]) {
 
@@ -128,35 +94,80 @@ void findItem(int key, int rel) {
 
 }
 
-void showTable(Node **node, int size, int rel) {
-    if (size == 0) {
-        cout << "Таблица пустая" << endl;
-    } else {
-        cout << "Таблица:" << endl;
-        for (int i=0; i<size; i++) {
-            if (node[i]->info != NULL) {
-                Item *current_item = node[i]->info;
-                cout << "    Ключ: " << node[i]->key << endl;
-                while (current_item != NULL) {
-                    if (rel == -1 || rel == current_item->release) {
+*/
 
-                        cout << "        Версия: " << current_item->release << \
-                                " Значение: " << current_item->string << endl;
-                    }
-                    current_item = current_item->next;
-                }
-            }
-        }
+OrderedTable::OrderedTable()
+{
+    for (int i=0; i<MAX_SIZE; i++) {
+        node[i] = new Node;
+        node[i]->key = 0;
+        node[i]->info = NULL;
     }
 }
 
-int printMenu() {
-    cout << "0 - Выход, ";
-    cout << "1 - Вывод таблицы, ";
-    cout << "2 - Добавление в таблицу, ";
-    cout << "3 - Удаление из таблицы, ";
-    cout << "4 - Поиск в таблице по ключу" << endl;
-    int i = readGoodInt();
-    return i;
+OrderedTable::~OrderedTable()
+{
+    for (int i=0; i<MAX_SIZE; i++) {
+        if (node[i]->info != NULL) {
+            Item *item = node[i]->info;
+            while(item != NULL) {
+                Item *next_item = item->next;
+                delete item;
+                item = next_item;
+            }
+        }
+        delete node[i];
+    }
 }
 
+bool OrderedTable::addNode(int key)
+{
+
+    Node *node = findNode(key);
+    if (node->info == NULL) {
+        Item *item = new Item;
+        item->next = NULL;
+        item->release = 0;
+        item->string = (char *)malloc(string_length * sizeof(char));
+        strncpy(item->string, str, string_length);
+        foundNode->info = item;
+        foundNode->key = key;
+        current_size++;
+    }
+}
+
+bool OrderedTable::addNextItem(int key)
+{
+
+}
+
+Node *OrderedTable::findNode(int key)
+{
+
+}
+
+Item *OrderedTable::findItem(int key, int rel)
+{
+
+}
+
+Node *OrderedTable::findBinaryNode(int key)
+{
+    /// Todo
+    return findNode(key);
+}
+
+Item *OrderedTable::findBinaryItem(int key, int rel)
+{
+
+}
+
+Node *OrderedTable::removeNode(int key)
+{
+
+}
+
+Item *OrderedTable::removeItem(int key, int rel)
+{
+
+}
