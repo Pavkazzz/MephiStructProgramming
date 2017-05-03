@@ -14,6 +14,8 @@ OrderedTable::OrderedTable(const char *filename)
     }
 
     this->filename = filename;
+    current_size = 0;
+    closest_after_search = 0;
 }
 
 OrderedTable::~OrderedTable()
@@ -52,20 +54,16 @@ bool OrderedTable::addItem(int key, const char str[STRING_SIZE])
         current_size++;
     } else {
         /// Add another item
-        Item *item = foundNode->info;
-        int last_relase = item->release;
+//        Item *item = foundNode->info;
+//        int last_relase = item->release;
+//        last_relase++;
 
-        while (item->next != NULL) {
-            item = item->next;
-            last_relase = item->release;
-        }
-
-        last_relase++;
-        item->next = new Item;
-        item->next->next = NULL;
-        item->next->release = last_relase;
-        item->next->string = (char *)malloc(string_length * sizeof(char));
-        memcpy(item->next->string, str, string_length);
+        Item *item = new Item;
+        item->release = foundNode->info->release+1;
+        item->next = foundNode->info;
+        item->string = (char *)malloc(string_length * sizeof(char));
+        strncpy(item->string, str, string_length);
+        foundNode->info = item;
     }
     /// TODO: return status if fail
     return true;
@@ -122,7 +120,7 @@ Node *OrderedTable::findPlaceForNewNode(int key)
     if (current_size == MAX_SIZE) {
         return NULL;
     }
-    /// Если нашли с таким ключом
+    /// п∙я│п╩п╦ п╫п╟я┬п╩п╦ я│ я┌п╟п╨п╦п╪ п╨п╩я▌я┤п╬п╪
     Node *node_b = binarySearch(key, current_size);
     if (node_b != NULL) {
         return node_b;
@@ -210,34 +208,21 @@ bool OrderedTable::removeItem(int key, int rel)
 
         while (item != NULL) {
             if (item->release == rel) {
-                if (prev_item != NULL) {
-                    prev_item->next = item->next;
-                } else {
-                    node->info = item->next;
 
-                    /// Удалили последний итем в строке
-                    if (item->next == NULL) {
+                if (prev_item == NULL) {
+                    node->info = item->next;
+                    if (node->info == NULL) {
                         current_size--;
                         node->key = -1;
-                        delete item;
-                        return true;
                     }
-
-                    item->next->release = 0;
-                    prev_item = item->next;
+                } else {
+                    prev_item->next = item->next;
                 }
+//                prev_item = item;
                 delete item;
-
-                /// Renumbering other release
-                item = prev_item->next;
-                while(item != NULL) {
-                    item->release = prev_item->release + 1;
-                    item = item->next;
-                    prev_item = prev_item->next;
-                }
-
                 return true;
             }
+            item->release--;
             prev_item = item;
             item = item->next;
         }
@@ -395,6 +380,11 @@ bool OrderedTable::desirialize()
 
     pclose(ptr_to_file);
     return true;
+}
+
+const char *OrderedTable::getFilename()
+{
+    return filename;
 }
 
 void OrderedTable::calculateCurrentSize()

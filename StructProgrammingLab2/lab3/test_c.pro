@@ -10,4 +10,4 @@ HEADERS += \
     lab3.h
 
 TARGET = ordered_table
-DESTDIR = /usr/local/lib/learning
+DESTDIR = lib

@@ -48,11 +48,13 @@ public:
     bool serialize();
     bool desirialize();
 
+    const char *getFilename();
+
 private:
 
     void calculateCurrentSize();
     Node *binarySearch(int key, size_t last_size);
-    /// Значение ближайшего после поиска
+    /// п≈п╫п╟я┤п╣п╫п╦п╣ п╠п╩п╦п╤п╟п╧я┬п╣пЁп╬ п©п╬я│п╩п╣ п©п╬п╦я│п╨п╟
     size_t closest_after_search;
 
     size_t current_size;
